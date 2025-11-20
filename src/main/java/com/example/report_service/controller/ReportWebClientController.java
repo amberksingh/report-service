@@ -2,6 +2,7 @@ package com.example.report_service.controller;
 
 import com.example.report_service.entity.Order;
 import com.example.report_service.entity.OrderDTO;
+import com.example.report_service.service.ReportService;
 import com.example.report_service.utility.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ReportWebClientController {
     @Autowired
     WebClient webClient;
 
+    @Autowired
+    ReportService reportService;
+
     @GetMapping("/dummy")
     public String dummyReport() {
         log.info("Inside dummyReport...");
@@ -33,11 +37,7 @@ public class ReportWebClientController {
     @GetMapping("/findById/{orderId}")
     public ResponseEntity<OrderDTO> findOrderById(@PathVariable Long orderId) {
         log.info("Finding order by id {}", orderId);
-        Order order = webClient.get()
-                .uri("/order-table/findById/v2/" + orderId)
-                .retrieve()
-                .bodyToMono(Order.class)
-                .block();
+        Order order = reportService.getOrder(orderId);//call to service layer
         log.info("order : {}", order);
         OrderDTO dto = OrderMapper.toDTO(order);
         log.info("OrderDTO : {}", dto);
@@ -60,12 +60,7 @@ public class ReportWebClientController {
     @GetMapping("/findAllOrders")
     public ResponseEntity<List<OrderDTO>> findAllOrders() {
         log.info("Finding all orders ");
-        List<Order> orders = webClient.get()
-                .uri("/order-table/findAllOrders/v2")
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<Order>>() {
-                })
-                .block();
+        List<Order> orders = reportService.findAllOrders();//call to service layer
         log.info("orders : {}", orders);
         List<OrderDTO> dtoList = OrderMapper.toDTO(orders);
         log.info("OrderDTO list : {}", dtoList);
