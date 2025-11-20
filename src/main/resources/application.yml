@@ -1,0 +1,26 @@
+server:
+  port: 6060
+spring:
+  application:
+    name: report-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce_report?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+#    Flyway will create the table — NOT Hibernate.
+#    Because Flyway runs before Hibernate during startup.
+#
+#    👉 Hibernate will see the table already existing and will not try to recreate or drop it, even if ddl-auto=update.
