@@ -105,7 +105,7 @@ public class ReportWebClientController {
         //return ResponseEntity.ok("findAllOrdersNonBlocking request sent to order-service");
     }
 
-    @GetMapping("/findById/{id}")
+    @GetMapping("/findByIdInReportService/{id}")
     public Report findById(@PathVariable Long id) {
         log.info("inside findById..");
         Report report = reportJpaRepo.findById(id).orElseThrow(() -> new RuntimeException("cant find report by id "+id));
