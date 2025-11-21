@@ -1,17 +1,17 @@
 package com.example.report_service.controller;
 
+import com.example.report_service.ReportJpaRepo;
 import com.example.report_service.entity.Order;
 import com.example.report_service.entity.OrderDTO;
+import com.example.report_service.entity.Report;
 import com.example.report_service.service.ReportService;
 import com.example.report_service.utility.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -23,10 +23,14 @@ import java.util.List;
 public class ReportWebClientController {
 
     @Autowired
+    @Qualifier("base_url_order")
     WebClient webClient;
 
     @Autowired
     ReportService reportService;
+
+    @Autowired
+    ReportJpaRepo reportJpaRepo;
 
     @GetMapping("/dummy")
     public String dummyReport() {
@@ -99,6 +103,38 @@ public class ReportWebClientController {
                 });
 
         //return ResponseEntity.ok("findAllOrdersNonBlocking request sent to order-service");
+    }
+
+    @GetMapping("/findById/{id}")
+    public Report findById(@PathVariable Long id) {
+        log.info("inside findById..");
+        Report report = reportJpaRepo.findById(id).orElseThrow(() -> new RuntimeException("cant find report by id "+id));
+        log.info("report by ID : {}", report);
+        return report;
+    }
+
+    @GetMapping("/findAllReports")
+    public List<Report> findAllReports() {
+        log.info("inside findAllReports..");
+        List<Report> reports = reportJpaRepo.findAll();
+        log.info("all reports : {}", reports);
+        return reports;
+    }
+
+    @PostMapping("/addReport")
+    public Report addReport(@RequestBody Report report) {
+        log.info("inside addReport..");
+        Report saved = reportJpaRepo.save(report);
+        log.info("report added : {}", saved);
+        return saved;
+    }
+
+    @PostMapping("/addMultipleReports")
+    public List<Report> addMultipleReports(@RequestBody List<Report> reports) {
+        log.info("inside addMultipleReports..");
+        List<Report> reportList = reportJpaRepo.saveAll(reports);
+        log.info("reportList added : {}", reportList);
+        return reportList;
     }
 
 }

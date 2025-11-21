@@ -3,6 +3,7 @@ package com.example.report_service.service;
 import com.example.report_service.entity.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
@@ -20,11 +21,12 @@ public class ReportService {
     int attemptFindAll = 1;
 
     @Autowired
+    @Qualifier("base_url_order_minikube")
     WebClient webClient;
 
     @Retryable(retryFor = RuntimeException.class, maxAttempts = 4, backoff = @Backoff(value = 2000))
     public Order getOrder(Long orderId) {
-        log.info("attemptById : {}", attemptById);
+        log.info("attemptById count : {}", attemptById);
         attemptById++;
         return webClient.get()
                 .uri("/order-table/findById/v2/" + orderId)
@@ -35,7 +37,7 @@ public class ReportService {
 
     @Retryable(retryFor = RuntimeException.class, maxAttempts = 4, backoff = @Backoff(value = 2000))
     public List<Order> findAllOrders() {
-        log.info("attemptFindAll : {}", attemptFindAll);
+        log.info("attemptFindAll count : {}", attemptFindAll);
         attemptFindAll++;
         return webClient.get()
                 .uri("/order-table/findAllOrders/v2")
