@@ -1,6 +1,6 @@
 replicaCount: 2
 
-profile: "local"
+profile: ""
 
 image:
   repository: devamber/report-service
