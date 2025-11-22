@@ -1,0 +1,60 @@
+Step 1: Get the MySQL Pod Name
+kubectl get pods
+
+
+You will see something like:
+
+mysql-746bc97748-8l4v5
+
+Step 2: Exec into the pod
+kubectl exec -it mysql-746bc97748-8l4v5 -- bash
+
+
+If bash is missing (common in MySQL image), use:
+
+kubectl exec -it mysql-746bc97748-8l4v5 -- sh
+
+Step 3: Login to MySQL
+mysql -u root -p
+
+
+Password = root
+
+Step 4: Check tables
+show databases;
+use ecommerce_report;
+show tables;
+
+======
+kubectl exec -it <mysql-pod> -- sh
+mysql -u root -p
+use ecommerce_report;
+show indexes from reports;
+show create table reports;
+
+
+
+HELM
+----
+helm create spring-helm-chart
+
+helm install springboot-helm ./spring-helm-chart
+
+helm uninstall springboot-helm
+
+helm install report-serice ./helm-report-service
+
+helm upgrade report-service ./helm-report-service --set profile=dev
+
+helm upgrade report-service ./helm-report-service -f values-dev.yaml
+
+helm install report-service-dev ./helm-report-service -f values-dev.yaml
+
+helm install report-service-dev ./helm-report-service --set profile=dev
+
+helm install report-service-dev ./helm-report-service --set profile=dev --set service.nodePort=32061
+
+
+helm install report-service-dev ./helm-report-service \
+  --set profile=dev \
+  --set service.nodePort=32061
