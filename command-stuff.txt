@@ -58,3 +58,71 @@ helm install report-service-dev ./helm-report-service --set profile=dev --set se
 helm install report-service-dev ./helm-report-service \
   --set profile=dev \
   --set service.nodePort=32061
+
+------------------
+helm install mysql-local bitnami/mysql \
+  --namespace local \
+  --create-namespace \
+  --set auth.rootPassword=root \
+  --set auth.database=ecommerce_report \
+  --set primary.service.type=ClusterIP
+
+level=WARN msg="unable to find exact version; falling back to closest available version" chart=mysql requested="" selected=14.0.3
+I1122 16:08:44.133170   89951 warnings.go:110] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: mysql-local
+LAST DEPLOYED: Sat Nov 22 16:08:43 2025
+NAMESPACE: local
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CHART NAME: mysql
+CHART VERSION: 14.0.3
+APP VERSION: 9.4.0
+
+⚠ WARNING: Since August 28th, 2025, only a limited subset of images/charts are available for free.
+    Subscribe to Bitnami Secure Images to receive continued support and security updates.
+    More info at https://bitnami.com and https://github.com/bitnami/containers/issues/83267
+
+** Please be patient while the chart is being deployed **
+
+Tip:
+
+  Watch the deployment status using the command: kubectl get pods -w --namespace local
+
+Services:
+
+  echo Primary: mysql-local.local.svc.cluster.local:3306
+
+Execute the following to get the administrator credentials:
+
+  echo Username: root
+  MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace local mysql-local -o jsonpath="{.data.mysql-root-password}" | base64 -d)
+
+To connect to your database:
+
+  1. Run a pod that you can use as a client:
+
+      kubectl run mysql-local-client --rm --tty -i --restart='Never' --image  docker.io/bitnami/mysql:9.4.0-debian-12-r1 --namespace local --env MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD --command -- bash
+
+  2. To connect to primary service (read/write):
+
+      mysql -h mysql-local.local.svc.cluster.local -uroot -p"$MYSQL_ROOT_PASSWORD"
+
+
+
+
+
+
+WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  - primary.resources
+  - secondary.resources
++info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+ambersingh@ambers-MacBook-Pro report-service % kubectl get pods -n local
+
+NAME            READY   STATUS                  RESTARTS   AGE
+mysql-local-0   0/1     Init:ImagePullBackOff   0          3m4s
+
+
+--------------------
