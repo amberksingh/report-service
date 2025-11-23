@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "helm-report-service.name" -}}
+{{- define "helmreport.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "helm-report-service.fullname" -}}
+{{- define "helmreport.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "helm-report-service.chart" -}}
+{{- define "helmreport.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "helm-report-service.labels" -}}
-helm.sh/chart: {{ include "helm-report-service.chart" . }}
-{{ include "helm-report-service.selectorLabels" . }}
+{{- define "helmreport.labels" -}}
+helm.sh/chart: {{ include "helmreport.chart" . }}
+{{ include "helmreport.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "helm-report-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "helm-report-service.name" . }}
+{{- define "helmreport.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "helmreport.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "helm-report-service.serviceAccountName" -}}
+{{- define "helmreport.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "helm-report-service.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "helmreport.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
