@@ -1,0 +1,245 @@
+✅ READ THE FINAL OUTPUT BELOW
+
+This is your complete README for LOCAL deployment using Helm, Ingress, MySQL Helm chart & Minikube.
+
+You can paste this directly into your repo.
+
+📘 LOCAL DEPLOYMENT GUIDE — Report Service (Helm + Ingress + MySQL + Minikube)
+
+Environment: macOS
+Branch: feature-helm-scratch-ingress
+Minikube Driver: Docker (important!)
+Status: Fully working with Ingress + MySQL
+
+🏁 1. Install Dependencies
+Install Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+Install Minikube
+brew install minikube
+
+Install kubectl
+brew install kubectl
+
+Install Helm
+brew install helm
+
+🚀 2. Start Minikube (Docker Driver)
+
+We used Docker driver, which requires running minikube tunnel with sudo.
+(Future option: switch to hyperkit — noted at bottom)
+
+minikube start --driver=docker
+
+
+Verify:
+
+minikube status
+
+⚙️ 3. Enable NGINX Ingress
+minikube addons enable ingress
+
+
+Wait until controller is Ready:
+
+kubectl get pods -n ingress-nginx
+
+
+Should show:
+
+ingress-nginx-controller   1/1   Running
+
+🐬 4. Deploy MySQL Helm Chart (local namespace)
+kubectl create namespace local
+helm install mysql-local ./mysql-chart -n local
+
+
+Verify MySQL pod:
+
+kubectl get pods -n local
+
+Connect to MySQL inside cluster (optional)
+kubectl exec -it -n local deployment/mysql-local -- mysql -uroot -p
+
+📦 5. Deploy Report-Service via Helm
+helm install report-service ./helmreport -n local
+
+
+Verify:
+
+kubectl get pods -n local
+kubectl get svc -n local
+kubectl get ingress -n local
+kubectl get endpoints -n local
+
+
+Expected:
+
+Two pods running
+
+ClusterIP service at port 6060
+
+Ingress host: report.local
+
+Endpoints: 10.244.x.x:6060
+
+🛑 IMPORTANT: macOS + Docker Driver Requires Tunnel
+Run this in a new terminal:
+
+⚠️ Must run with sudo
+
+sudo minikube tunnel
+
+
+Enter your Mac password.
+
+Leave the terminal open.
+
+This exposes LoadBalancer/Ingress traffic to your host.
+
+🖥️ 6. Configure /etc/hosts
+sudo nano /etc/hosts
+
+
+Add:
+
+127.0.0.1   report.local
+127.0.0.1   report.dev
+
+
+Save → exit.
+
+Check:
+
+cat /etc/hosts | grep report
+
+🔍 7. Test That Ingress Can Reach Your Pods (internal test)
+
+From inside ingress controller:
+
+POD=$(kubectl get pod -n ingress-nginx -l app.kubernetes.io/component=controller -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it -n ingress-nginx $POD -- curl -v http://<YOUR-POD-IP>:6060/actuator/health
+
+
+Expected:
+
+{"status":"UP"}
+
+🌐 8. Test From Host (via Ingress)
+Basic test:
+curl -H "Host: report.local" http://127.0.0.1/reports/dummy
+
+With minikube IP (optional):
+curl -H "Host: report.local" http://$(minikube ip)/reports/dummy
+
+
+If tunnel is running correctly — both work.
+
+🔧 9. Troubleshooting (Issues We Faced)
+❌ 1. Ingress had no IP / not reachable
+
+Reason: Docker driver on macOS does not expose Minikube VM’s network.
+
+Fix:
+
+sudo minikube tunnel
+
+❌ 2. Ingress logs said “no active endpoints”
+
+But kubectl get endpoints showed them.
+
+Root cause:
+
+Not a Kubernetes issue
+
+Ingress could not be reached from host, NOT from inside cluster
+
+Cluster networking was correct
+
+Fix:
+
+Tunnel + hosts file
+
+❌ 3. Old ingress objects from previous chart existed
+
+Symptoms:
+
+Duplicate host/path
+
+NGINX rejecting rules
+
+Fix:
+
+kubectl delete ingress --all -n local
+
+❌ 4. Labels / selectors initially mismatched
+
+Because chart folder name changed from helm-report-service → helmreport.
+
+Fix:
+
+Clean re-install
+
+Ensure consistent labels via Helm helpers
+
+Verified correct endpoints mapping
+
+🔍 10. Validate Everything
+Pods:
+kubectl get pods -n local
+
+Service:
+kubectl get svc -n local
+
+Endpoints:
+kubectl get endpoints -n local report-service-helmreport
+
+
+Must show:
+
+10.244.x.x:6060
+
+Ingress:
+kubectl get ingress -n local
+
+
+Must show:
+
+ADDRESS = 192.168.49.2
+
+
+(Actual traffic delivered via tunnel → localhost)
+
+📘 11. Optional: Database Verification
+kubectl exec -it -n local deployment/mysql-local -- mysql -uroot -p
+SHOW DATABASES;
+USE <your_db>;
+SHOW TABLES;
+
+🔮 12. Notes for Future Developers (Important)
+✔ If you stay on Docker driver:
+
+Always run:
+
+sudo minikube tunnel
+
+✔ If you want to AVOID tunnel forever:
+
+Switch to HyperKit:
+
+minikube delete
+brew install hyperkit
+minikube start --driver=hyperkit
+minikube addons enable ingress
+
+
+No tunnel required with hyperkit.
+
+🏁 13. Final Test URL
+
+After everything:
+
+http://report.local/reports/dummy
+
+
+If you see your JSON response → cluster is perfect.
