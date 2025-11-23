@@ -42,7 +42,7 @@ helm install springboot-helm ./spring-helm-chart
 
 helm uninstall springboot-helm
 
-helm install report-serice ./helm-report-service
+helm install report-service ./helm-report-service
 
 helm upgrade report-service ./helm-report-service --set profile=dev
 
