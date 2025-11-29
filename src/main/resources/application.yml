@@ -29,3 +29,18 @@ spring:
 #    Because Flyway runs before Hibernate during startup.
 #
 #    👉 Hibernate will see the table already existing and will not try to recreate or drop it, even if ddl-auto=update.
+
+cloud:
+  aws:
+    credentials:
+      access-key: test               # LocalStack test key
+      secret-key: test               # LocalStack test secret
+    region:
+      static: ap-south-1
+    s3:
+      endpoint: http://localhost:4566       # LocalStack endpoint
+      path-style-access-enabled: true       # REQUIRED for LocalStack
+
+app:
+  bucket-name: spring-bucket        # Your S3 bucket created via spring app
+  #bucket-name: terraform-demo-bucket        # Your S3 bucket created via Terraform
