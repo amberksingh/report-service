@@ -42,5 +42,5 @@ cloud:
       path-style-access-enabled: true       # REQUIRED for LocalStack
 
 app:
-  bucket-name: spring-bucket        # Your S3 bucket created via spring app
+  bucket-name: springboot-terraform-bucket        # Your S3 bucket created via spring app
   #bucket-name: terraform-demo-bucket        # Your S3 bucket created via Terraform

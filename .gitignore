@@ -28,3 +28,21 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Terraform state
+*.tfstate
+*.tfstate.backup
+
+# Terraform local directories
+.terraform/
+.terraform.lock.hcl
+
+# Provider binaries
+terraform-provider-*
+
+# Lambda build artifacts
+terraform/lambda/lambda.zip
+
+# Test files
+*.txt
+
