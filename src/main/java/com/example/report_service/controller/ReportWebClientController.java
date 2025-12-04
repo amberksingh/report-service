@@ -13,6 +13,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -48,19 +49,6 @@ public class ReportWebClientController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/findById/v2/{orderId}")
-    public ResponseEntity<String> findOrderByIdNonBlocking(@PathVariable Long orderId) {
-        log.info("findOrderById-NonBlocking order by id {}", orderId);
-        webClient.get()
-                .uri("/order-table/findById/v2/" + orderId)
-                .retrieve()
-                .bodyToMono(Order.class)
-                .subscribe(o -> {
-                    log.info("received response from order-service : {}", o);
-                });
-        return ResponseEntity.ok("findOrderByIdNonBlocking request sent to order-service");
-    }
-
     @GetMapping("/findAllOrders")
     public ResponseEntity<List<OrderDTO>> findAllOrders() {
         log.info("Finding all orders ");
@@ -69,6 +57,26 @@ public class ReportWebClientController {
         List<OrderDTO> dtoList = OrderMapper.toDTO(orders);
         log.info("OrderDTO list : {}", dtoList);
         return ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping("/findById/v2/{orderId}")
+    public ResponseEntity<String> findOrderByIdNonBlocking(@PathVariable Long orderId) {
+        log.info("findOrderById-NonBlocking order by id {}", orderId);
+//        Disposable subscribe = webClient.get()
+//                .uri("/order-table/findById/v2/" + orderId)
+//                .retrieve()
+//                .bodyToMono(Order.class)
+//                .subscribe(o -> {
+//                    log.info("received response from order-service : {}", o);
+//                });
+        webClient.get()
+                .uri("/order-table/findById/v2/" + orderId)
+                .retrieve()
+                .bodyToMono(Order.class)
+                .subscribe(o -> {
+                    log.info("received response from order-service : {}", o);
+                });
+        return ResponseEntity.ok("findOrderByIdNonBlocking request sent to order-service");
     }
 
     @GetMapping("/findAllOrders/v2")

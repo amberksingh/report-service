@@ -24,10 +24,28 @@ public class ReportService {
     @Qualifier("base_url_order_minikube")
     WebClient webClient;
 
+    //Mono<ResponseEntity<Person>> entityMono = client.get()
+    //      .uri("/persons/1")
+    //      .accept(MediaType.APPLICATION_JSON)
+    //      .retrieve()
+    //      .toEntity(Person.class);
+    //
+    //Or if interested only in the body:
+    //  Mono<Person> entityMono = client.get()
+    //      .uri("/persons/1")
+    //      .accept(MediaType.APPLICATION_JSON)
+    //      .retrieve()
+    //      .bodyToMono(Person.class);
+
     @Retryable(retryFor = RuntimeException.class, maxAttempts = 4, backoff = @Backoff(value = 2000))
     public Order getOrder(Long orderId) {
         log.info("attemptById count : {}", attemptById);
         attemptById++;
+//        Order block = webClient.get()
+//                .uri("/order-table/findById/v2/" + orderId)
+//                .retrieve()
+//                .bodyToMono(Order.class)
+//                .block();
         return webClient.get()
                 .uri("/order-table/findById/v2/" + orderId)
                 .retrieve()
@@ -37,13 +55,19 @@ public class ReportService {
 
     @Retryable(retryFor = RuntimeException.class, maxAttempts = 4, backoff = @Backoff(value = 2000))
     public List<Order> findAllOrders() {
+        //ParameterizedTypeReference<List<Order>> p = new ParameterizedTypeReference<>(){};
         log.info("attemptFindAll count : {}", attemptFindAll);
         attemptFindAll++;
+//        List<Order> block = webClient.get()
+//                .uri("/order-table/findAllOrders/v2")
+//                .retrieve()
+//                .bodyToMono(new ParameterizedTypeReference<List<Order>>() {
+//                })
+//                .block();
         return webClient.get()
                 .uri("/order-table/findAllOrders/v2")
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<Order>>() {
-                })
+                .bodyToMono(new ParameterizedTypeReference<List<Order>>() {})
                 .block();
     }
 

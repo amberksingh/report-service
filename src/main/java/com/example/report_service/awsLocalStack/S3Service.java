@@ -31,6 +31,7 @@ public class S3Service {
                 .build();
 
         s3Client.createBucket(request);
+        //CreateBucketResponse bucket = s3Client.createBucket(request);
         log.info("created bucket : {}", bucketName);
     }
 
@@ -40,6 +41,7 @@ public class S3Service {
                 .key(fileName)
                 .build();
 
+        //PutObjectResponse putObjectResponse = s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
         s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
         log.info("Uploaded file {} to {} bucket :", fileName, bucketName);
         return "Uploaded: " + fileName;
